@@ -12,8 +12,8 @@ import unicodecsv
 
 
 res = []
-url = 'https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_'
-year = 2014
+url = 'https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_'
+year = 2017
 
 html = requests.get(url+str(year))
 soup = BeautifulSoup(html.text, 'lxml')
@@ -81,8 +81,9 @@ for key,value in res_by_title.items():
     res_final.append(value)
 
 # Prepare fields for csv export.
-csv_fields = ['title','artists','entry_1','entry_2',
-              'entry_3','weeks_1','weeks_2','weeks_3']
+# csv_fields = ['title','artists','entry_1','entry_2',
+#               'entry_3','weeks_1','weeks_2','weeks_3']
+csv_fields = ['title','artists','entry_1','weeks_1']
 
 # Export csv
 with open('../data/Billboard_Top_100_'+str(year)+'.csv', 'wb') as f:
