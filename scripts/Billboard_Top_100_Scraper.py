@@ -10,94 +10,31 @@ import re
 from collections import defaultdict
 import unicodecsv
 
-# Get 1958 results
+
 res = []
 url = 'https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number-one_singles_of_'
-year = 1958
-switch = 0 # ensures only Hot 100 number ones are counted
+year = 2014
+
 html = requests.get(url+str(year))
 soup = BeautifulSoup(html.text, 'lxml')
 for entry in soup.find_all('tr'):
-    if len(entry.find_all('td')) >= 2:
+    if len(entry.find_all('td')) >= 2: # note change here
         row = {}
+        for e in entry.find_all('th'): # also here
+            row['date'] = e.text+" "+str(year)
         for i, e in enumerate(entry.find_all('td')):
-            if e.text == "August 4": # Beginning of the Hot 100
-                switch = 1
-            if switch == 0:
-                continue
             if i == 0:
-                row['date'] = e.text+" "+str(year)
-            elif i == 1:
-                text = e.text.split("\n")
-                if len(text) > 1:
-                    row['title'] = text[0]
-                    row['artists'] = text[1]
-                else:
-                    continue
+                row['title'] = e.text
                 if 'rowspan' in e.attrs:
                     row['weeks'] = int(e['rowspan'])
                 else:
                     row['weeks'] = 1
+            elif i == 1:
+                row['artists'] = e.text
             else:
                 continue
         if len(row) == 4:
             res.append(row)
-
-# Get 1959-2017 results
-month_re = re.compile(r'^[A-Z]+', re.IGNORECASE)
-day_re = re.compile(r'[0-9]+$', re.IGNORECASE)
-start = 1959
-end = 2011
-for year in range(start,end+1):
-    html = requests.get(url+str(year))
-    soup = BeautifulSoup(html.text, 'lxml')
-    for entry in soup.find_all('tr'):
-        if len(entry.find_all('td')) > 2:
-            row = {}
-            for i, e in enumerate(entry.find_all('td')):
-                if i == 0:
-                    row['date'] = e.text+" "+str(year)
-                    if year == 2011: # Fixes date oddity in 2011 data
-                        month = (month_re.search(e.text)).group()
-                        day = (day_re.search(e.text)).group()
-                        row['date'] = month+" "+day+" "+str(year)
-                elif i == 1:
-                    row['title'] = e.text
-                    if 'rowspan' in e.attrs:
-                        row['weeks'] = int(e['rowspan'])
-                    else:
-                        row['weeks'] = 1
-                elif i == 2:
-                    row['artists'] = e.text
-                else:
-                    continue
-            if len(row) == 4:
-                res.append(row)
-
-# Get 2012+ results (due to page formatting changes)
-start = 2012
-end = 2017
-for year in range(start,end+1):
-    html = requests.get(url+str(year))
-    soup = BeautifulSoup(html.text, 'lxml')
-    for entry in soup.find_all('tr'):
-        if len(entry.find_all('td')) >= 2: # note change here
-            row = {}
-            for e in entry.find_all('th'): # also here
-                row['date'] = e.text+" "+str(year)
-            for i, e in enumerate(entry.find_all('td')):
-                if i == 0:
-                    row['title'] = e.text
-                    if 'rowspan' in e.attrs:
-                        row['weeks'] = int(e['rowspan'])
-                    else:
-                        row['weeks'] = 1
-                elif i == 1:
-                    row['artists'] = e.text
-                else:
-                    continue
-            if len(row) == 4:
-                res.append(row)
 
 # Clean missing artists and Lady Marmalade cover, add 'entry' variable
 title_count = defaultdict(int)
@@ -148,7 +85,7 @@ csv_fields = ['title','artists','entry_1','entry_2',
               'entry_3','weeks_1','weeks_2','weeks_3']
 
 # Export csv
-with open('Billboard_Top_100.csv', 'wb') as f:
+with open('../data/Billboard_Top_100_'+str(year)+'.csv', 'wb') as f:
     writer = unicodecsv.DictWriter(f, csv_fields)
     writer.writeheader()
     writer.writerows(res_final)
