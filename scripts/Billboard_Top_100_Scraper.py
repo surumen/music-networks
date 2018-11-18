@@ -148,7 +148,7 @@ csv_fields = ['title','artists','entry_1','entry_2',
               'entry_3','weeks_1','weeks_2','weeks_3']
 
 # Export csv
-with open('billboard_wiki.csv', 'wb') as f:
+with open('Billboard_Top_100.csv', 'wb') as f:
     writer = unicodecsv.DictWriter(f, csv_fields)
     writer.writeheader()
     writer.writerows(res_final)
