@@ -1,7 +1,7 @@
 """
 Script to enable compiling of Billboard Hot 100 data from Spotify and Wikipedia 
 into a single data set, using outputs from 'Spotify_API.py' and 
-'Wikipedia_scraping.py' scripts. Song titles and artists are matched using
+'Billboard_Top_100_Scraper.py' scripts. Song titles and artists are matched using
 fuzzywuzzy library.
 """
 
